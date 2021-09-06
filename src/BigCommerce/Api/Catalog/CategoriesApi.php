@@ -5,10 +5,13 @@ namespace BigCommerce\ApiV3\Api\Catalog;
 use BigCommerce\ApiV3\Api\Generic\ResourceApi;
 use BigCommerce\ApiV3\Api\Catalog\Categories\CategoryImageApi;
 use BigCommerce\ApiV3\Api\Catalog\Categories\CategoryMetafieldsApi;
+use BigCommerce\ApiV3\Api\Generic\AttributeFilter;
 use BigCommerce\ApiV3\ResourceModels\Catalog\Category\Category;
 use BigCommerce\ApiV3\ResponseModels\Category\CategoriesResponse;
 use BigCommerce\ApiV3\ResponseModels\Category\CategoryResponse;
 use BigCommerce\ApiV3\ResponseModels\Category\CategoryTreeResponse;
+use GuzzleHttp\RequestOptions;
+use Psr\Http\Client\ClientExceptionInterface;
 
 class CategoriesApi extends ResourceApi
 {
@@ -56,6 +59,22 @@ class CategoriesApi extends ResourceApi
     public function update(Category $category): CategoryResponse
     {
         return new CategoryResponse($this->updateResource($category));
+    }
+
+    public function batchDelete(array $categoryIds): bool
+    {
+        try {
+            $this->getClient()->getRestClient()->delete(
+                $this->multipleResourcesEndpoint(),
+                [
+                    RequestOptions::QUERY => AttributeFilter::in('id', $categoryIds),
+                ]
+            );
+
+            return true;
+        } catch (ClientExceptionInterface $exception) {
+            return false;
+        }
     }
 
     protected function singleResourceEndpoint(): string
