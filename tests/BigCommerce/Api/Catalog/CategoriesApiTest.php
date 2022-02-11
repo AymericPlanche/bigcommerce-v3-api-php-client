@@ -131,4 +131,18 @@ class CategoriesApiTest extends BigCommerceApiTest
 
         $this->assertEquals($expectedTree, $response);
     }
+
+    public function testCanBatchDeleteCategories(): void
+    {
+        $this->setReturnData('blank.json', 204);
+        $response = $this->getApi()->catalog()->categories()->batchDelete([1,2,3]);
+        $this->assertTrue($response);
+    }
+
+    public function testCanFailToDeleteBatchDeleteCategories(): void
+    {
+        $this->setReturnData(self::EMPTY_RESPONSE, 400);
+        $response = $this->getApi()->catalog()->categories()->batchDelete([1,2,3]);
+        $this->assertFalse($response);
+    }
 }
